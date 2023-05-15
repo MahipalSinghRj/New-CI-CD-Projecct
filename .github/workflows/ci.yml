@@ -1,0 +1,45 @@
+# CI-CD to generate the APK file for Flutter project
+# Android
+# create folder as follow
+# add folder with <.github> name and under the same folder create another folder <workflows>
+# then create a file <file.yml> and add below code in it.
+# Email function added below
+
+
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  flutter_test:
+    name: Run flutter test and analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - run: flutter pub get
+      - run: flutter build apk --release
+
+      - name: Send mail
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: <Gmail ID>
+          password: <Gmail Password>
+          subject: Github Actions job result
+          body: Build job of ${{github.repository}} completed successfully!
+          to: <email@gmail.com, email2@gmail.com>
+          from: github-actions
+          attachments: "build/app/outputs/flutter-apk/app-release.apk"
+          priority: high
+
+      - name: Checkout code
+        uses: actions/checkout@v2
